@@ -12,7 +12,6 @@ import scipy as sp
 import random
 
 
-
 sim_duration = 10000 # Durée de la simulation, en heures
 canvas_grid_sep = 100  # Largeur de case de l'échiquier
 canvas_width = 10*canvas_grid_sep  # Largeur du monde
@@ -52,7 +51,7 @@ new_food_per_spawn = 75  # Qté de bouffe apparaissant # de 35 à 50 (20 avril A
 period_food_spawn = 1  # Apparition à chaque "" heure
 food_steering_force_increment = 10  # Force de changement de cap à la vue de la bouffe
 collaboration = True # Est-ce que les espèces collaborent? ou PAS
-interaction_delay = 3 #Interaction à chaque " " itération
+interaction_delay = 3 #I nteraction à chaque " " itération
 max_number_of_interactions = 10
 test_collab = False
 racisme = False
