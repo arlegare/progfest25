@@ -7,13 +7,13 @@ Ce projet contient plusieurs exemples de simulations numériques destinées à i
 ### **Exemples de simulations inclues :**
 
 1. **Dynamique écologique**  
-   Modélisation de la coopération entre espèces et de son impact sur leur répartition spatiale. Ce modèle simple explore les interactions entre populations et l’évolution des dynamiques écologiques.  
-
-2. **Modèle d’Ising en 2D**  
-   Une simulation de transitions de phase dans un système de spins, utilisant l’algorithme de Metropolis-Hastings. Ce modèle est couramment utilisé pour comprendre les phénomènes de magnétisme et la théorie des transitions de phase.
-
-3. **Échanges thermiques dans un bâtiment**  
+   Modélisation de la coopération entre espèces et de son impact sur leur répartition spatiale. Ce modèle simple explore les interactions entre populations et l’évolution des dynamiques écologiques.
+   
+2. **Échanges thermiques dans un bâtiment**  
    Simulation des échanges thermiques dans un bâtiment avec plusieurs pièces, pour tester différentes stratégies de gestion du chauffage en fonction de la durée d’absence. Cette simulation peut être appliquée dans le cadre de l’optimisation énergétique des bâtiments.
+
+3. **Modélisation d'activité neuronale**  
+   Simulation de l'activité d'un modèle de neurones basés sur des oscillateurs de Kuramoto, afin de voir dans quelle mesure l'activité simulée pour ressembler à la structure biologique réelle (grande question en neurosciences!).
 
 ## **Structure du projet**
 
