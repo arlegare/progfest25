@@ -1,77 +1,73 @@
 import numpy as np
 from scipy.integrate import odeint
 
-def thermal_model(T, t, C, K, K_ext, T_ext_func, P_func):
+def modele_thermique(T, t, C, L, K_ext, T_ext_fct, P_fct):
     """
-    Differential equation for the thermal model.
+    Équation différentielle du modèle (écrite sous forme matricielle).
     
-    Parameters:
-    - T: Temperature vector
-    - t: Time
-    - C: Heat capacity matrix
-    - K: Thermal conductance matrix
-    - K_ext: External thermal conductance matrix
-    - T_ext_func: Function for external temperature vector
-    - P_func: Function for heating power vector
+    Arguments d'entrée :
+    T : Vecteur des températures;
+    t : Temps "actuel";
+    C : Matrice de capacité thermique;
+    L : Matrice de conductivité thermique (laplacienne);
+    K_ext : Matrice de conductivité thermique avec l'extérieur;
+    T_ext_fct : Fonction pour le vecteur des températures extérieures (par ex. : un mur au soleil sera plus chaud);
+    P_fct : Fonction de modulation des puissances selon les températures.
     
-    Returns:
-    - dTdt: Time derivative of temperature vector
+    Renvoie en sortie :
+    - dTdt : Approximation discrète de la dérivée temporelle du vecteur des températures. 
     """
-    T_ext = T_ext_func(t)
-    P = P_func(t, T)
-    dTdt = np.linalg.inv(C) @ (P - K @ T + K_ext @ (T_ext - T))
+
+    T_ext = T_ext_fct(t)
+    P = P_fct(t, T)
+    dTdt = np.linalg.inv(C) @ (- L @ T  + P + K_ext @ (T_ext - T))
+
     return dTdt
 
-def simulate_thermal_model(C, K, K_ext, T_ext_func, P_func, T0, t):
-    """
-    Simulate the thermal model.
-    
-    Parameters:
-    - C: Heat capacity matrix
-    - K: Thermal conductance matrix
-    - K_ext: External thermal conductance matrix
-    - T_ext_func: Function for external temperature vector
-    - P_func: Function for heating power vector
-    - T0: Initial temperature vector
-    - t: Time vector
-    
-    Returns:
-    - T: Temperature matrix over time
-    """
-    # Define the function to pass to odeint
-    def model(T, t):
-        return thermal_model(T, t, C, K, K_ext, T_ext_func, P_func)
-    
-    # Solve the differential equation
-    T = odeint(model, T0, t)
-    
-    return T
 
-"""
-# Example usage:
-if __name__ == "__main__":
-    # Define parameters
-    n_rooms = 3  # Number of rooms
-    C = np.diag([1.0, 1.0, 1.0])  # Heat capacity matrix (example values)
-    K = np.array([[2.0, -1.0, -1.0], [-1.0, 2.0, -1.0], [-1.0, -1.0, 2.0]])  # Thermal conductance matrix (example values)
-    K_ext = np.diag([0.5, 0.5, 0.5])  # External thermal conductance matrix (example values)
+
+def simule_modele_thermique(C, L, K_ext, T_ext_fct, P_fct, T_0, t, method="RK45"):
+    """
+    Simule la dynamique thermique d'un bâtiment à N pièces.
+    Utilise la fonction 
     
-    # Define external temperature function (example: constant external temperature)
-    def T_ext_func(t):
-        return np.array([10.0, 10.0, 10.0])
+    Arguments d'entrée :
+    C : Matrice de capacités thermiques.
+    L : Matrice de conductance thermique.
+    K_ext : Matrice de conductance thermique externe.
+    T_ext_fct : Fonction de température extérieure.
+    P_fct : Fonction de puissance de chauffage.
+    T_0 : Températures initiales.
+    t : Vecteur temporel pour l'intégration.
     
-    # Define heating power function (example: proportional control)
-    def P_func(t, T):
-        T_desired = np.array([20.0, 20.0, 20.0])
-        K_p = 10.0
-        return K_p * (T_desired - T)
+    Renvoie en sortie :
+    T : Températures des pièces au cours du temps.
+    P : Puissances de chauffage au cours du temps.
+    """
+
+    dt = t[1] - t[0] # Approximation discrète de la dérivée temporelle du vecteur des températures.
+    T = np.zeros((len(t), len(T_0)))
+    P = np.zeros((len(t), len(T_0)))
+    T[0] = T_0 # Conditions initiales.
     
-    # Initial temperature vector (example values)
-    T0 = np.array([15.0, 15.0, 15.0])
+    # Intégration Runge-Kutta 4(5) par défaut, sinon méthode d'Euler.
+    if method == "RK45":
+        def rk45_step(f, y, t, dt, *args):
+            k1 = f(y, t, *args)
+            k2 = f(y + dt/2 * k1, t + dt/2, *args)
+            k3 = f(y + dt/2 * k2, t + dt/2, *args)
+            k4 = f(y + dt * k3, t + dt, *args)
+            return y + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
+        
+        for i in range(1, len(t)):
+            T_ext = T_ext_fct(t[i])
+            P[i] = P_fct(t[i], T[i-1])
+            T[i] = rk45_step(modele_thermique, T[i-1], t[i], dt, C, L, K_ext, T_ext_fct, P_fct)
+    else:
+        for i in range(1, len(t)):
+            T_ext = T_ext_fct(t[i])
+            P[i] = P_fct(t[i], T[i-1])
+            dTdt = modele_thermique(T[i-1], t[i], C, L, K_ext, T_ext_fct, P_fct)
+            T[i] = T[i-1] + dTdt * dt
     
-    # Time vector (example values)
-    t = np.linspace(0, 10, 100)
-    
-    # Simulate the model
-    T = simulate_thermal_model(C, K, K_ext, T_ext_func, P_func, T0, t)
-"""
+    return T, P
