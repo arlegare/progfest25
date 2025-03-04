@@ -60,13 +60,9 @@ def simule_modele_thermique(C, L, K_ext, T_ext_fct, P_fct, T_0, t, method="RK45"
             return y + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
         
         for i in range(1, len(t)):
-            T_ext = T_ext_fct(t[i])
-            P[i] = P_fct(t[i], T[i-1])
             T[i] = rk45_step(modele_thermique, T[i-1], t[i], dt, C, L, K_ext, T_ext_fct, P_fct)
     else:
         for i in range(1, len(t)):
-            T_ext = T_ext_fct(t[i])
-            P[i] = P_fct(t[i], T[i-1])
             dTdt = modele_thermique(T[i-1], t[i], C, L, K_ext, T_ext_fct, P_fct)
             T[i] = T[i-1] + dTdt * dt
     
