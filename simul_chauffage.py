@@ -83,6 +83,7 @@ class PIDController:
 
     Méthodes :
     - update_T_target(T_cible) : Met à jour la température cible.
+    - reset() : Réinitialise la valeur accumulée par le terme intégral.
     - calcul_puissance(T, dt) : Calcule la puissance de chauffage.
     """
     def __init__(self, T_target, K_p=50.0, K_i=1.0, K_d=10.0):
